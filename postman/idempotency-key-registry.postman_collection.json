@@ -1,0 +1,789 @@
+{
+  "info" : {
+    "name" : "idempotency-key-registry Postman Collection",
+    "description" : "Distributed idempotency key registry for safe request retries across \nmicroservices. Prevents duplicate side effects when clients retry due to \nnetwork failures, timeouts, or user double-clicks. Coordinates concurrent \nrequests to the same key, caches completed responses for instant replay, \nand guarantees at-most-once execution of critical operations like payments, \norders, and refunds.\n\n\nOpenAPI version: 1.0.0",
+    "schema" : "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth" : {
+    "type" : "bearer",
+    "bearer" : [ {
+      "key" : "token",
+      "value" : "{{accessToken}}",
+      "type" : "string"
+    } ]
+  },
+  "variable" : [ {
+    "key" : "baseUrl",
+    "value" : "https://idempotency.forgesphere.lightning.com/v30",
+    "type" : "string",
+    "description" : "Override with the base URL of the deployed Apigee proxy."
+  }, {
+    "key" : "accessToken",
+    "value" : "",
+    "type" : "string"
+  }, {
+    "key" : "idempotencyKey",
+    "value" : "",
+    "type" : "string",
+    "description" : "The idempotency key to look up."
+  }, {
+    "key" : "clientId",
+    "value" : "",
+    "type" : "string",
+    "description" : "Caller identity for tenant isolation."
+  }, {
+    "key" : "includeCachedResponse",
+    "value" : "",
+    "type" : "string",
+    "description" : "Whether to include the cached response body (if completed)."
+  }, {
+    "key" : "reason",
+    "value" : "",
+    "type" : "string",
+    "description" : "Reason for release (audit trail)."
+  } ],
+  "item" : [ {
+    "name" : "Reserve a new idempotency key before processing a request",
+    "request" : {
+      "method" : "POST",
+      "description" : "Reserve a new idempotency key before processing a request\n\nResponses:\n- 201: Key reserved — caller may proceed with the operation.\n- 200: Key already exists — either IN_PROGRESS, COMPLETED (replay cached\nresponse), or FINGERPRINT_MISMATCH. The caller should NOT proceed.\n\n- 400: Invalid request payload or missing required fields.\n- 409: Fingerprint mismatch — key reused with different payload.\n- 500: Internal server error.",
+      "header" : [ {
+        "key" : "Content-Type",
+        "value" : "application/json",
+        "type" : "text"
+      } ],
+      "body" : {
+        "mode" : "raw",
+        "raw" : "{\"idempotencyKey\":\"order-ORD-12345-pay-2026-11-02\",\"requestFingerprint\":\"sha256:3a7bd3e2360a3d29eea436fcfb7e44c735d117c42d1c1835420b6b9942dd4f1b\",\"operation\":\"payment.charge\",\"ttlSeconds\":86400,\"clientId\":\"checkout-service\",\"correlationId\":\"9c8f1a3b-6d7e-4a12-8f5e-123456789abc\",\"metadata\":{\"orderId\":\"ORD-12345\",\"customerId\":\"CUST-789\"}}",
+        "options" : {
+          "raw" : {
+            "language" : "json"
+          }
+        }
+      },
+      "url" : {
+        "raw" : "{{baseUrl}}/keys",
+        "host" : [ "{{baseUrl}}" ],
+        "path" : [ "keys" ]
+      }
+    },
+    "response" : [ {
+      "name" : "201 Key reserved — caller may proceed with the operation.",
+      "originalRequest" : {
+        "method" : "POST",
+        "description" : "Reserve a new idempotency key before processing a request\n\nResponses:\n- 201: Key reserved — caller may proceed with the operation.\n- 200: Key already exists — either IN_PROGRESS, COMPLETED (replay cached\nresponse), or FINGERPRINT_MISMATCH. The caller should NOT proceed.\n\n- 400: Invalid request payload or missing required fields.\n- 409: Fingerprint mismatch — key reused with different payload.\n- 500: Internal server error.",
+        "header" : [ {
+          "key" : "Content-Type",
+          "value" : "application/json",
+          "type" : "text"
+        } ],
+        "body" : {
+          "mode" : "raw",
+          "raw" : "{\"idempotencyKey\":\"order-ORD-12345-pay-2026-11-02\",\"requestFingerprint\":\"sha256:3a7bd3e2360a3d29eea436fcfb7e44c735d117c42d1c1835420b6b9942dd4f1b\",\"operation\":\"payment.charge\",\"ttlSeconds\":86400,\"clientId\":\"checkout-service\",\"correlationId\":\"9c8f1a3b-6d7e-4a12-8f5e-123456789abc\",\"metadata\":{\"orderId\":\"ORD-12345\",\"customerId\":\"CUST-789\"}}",
+          "options" : {
+            "raw" : {
+              "language" : "json"
+            }
+          }
+        },
+        "url" : {
+          "raw" : "{{baseUrl}}/keys",
+          "host" : [ "{{baseUrl}}" ],
+          "path" : [ "keys" ]
+        }
+      },
+      "status" : "Key reserved — caller may proceed with the operation.",
+      "code" : 201,
+      "_postman_previewlanguage" : "json",
+      "header" : [ ],
+      "body" : ""
+    }, {
+      "name" : "200 Key already exists — either IN_PROGRESS, COMPLETED (replay cached\nresponse), or FINGERPRINT_MISMATCH. The caller should NOT proceed.\n",
+      "originalRequest" : {
+        "method" : "POST",
+        "description" : "Reserve a new idempotency key before processing a request\n\nResponses:\n- 201: Key reserved — caller may proceed with the operation.\n- 200: Key already exists — either IN_PROGRESS, COMPLETED (replay cached\nresponse), or FINGERPRINT_MISMATCH. The caller should NOT proceed.\n\n- 400: Invalid request payload or missing required fields.\n- 409: Fingerprint mismatch — key reused with different payload.\n- 500: Internal server error.",
+        "header" : [ {
+          "key" : "Content-Type",
+          "value" : "application/json",
+          "type" : "text"
+        } ],
+        "body" : {
+          "mode" : "raw",
+          "raw" : "{\"idempotencyKey\":\"order-ORD-12345-pay-2026-11-02\",\"requestFingerprint\":\"sha256:3a7bd3e2360a3d29eea436fcfb7e44c735d117c42d1c1835420b6b9942dd4f1b\",\"operation\":\"payment.charge\",\"ttlSeconds\":86400,\"clientId\":\"checkout-service\",\"correlationId\":\"9c8f1a3b-6d7e-4a12-8f5e-123456789abc\",\"metadata\":{\"orderId\":\"ORD-12345\",\"customerId\":\"CUST-789\"}}",
+          "options" : {
+            "raw" : {
+              "language" : "json"
+            }
+          }
+        },
+        "url" : {
+          "raw" : "{{baseUrl}}/keys",
+          "host" : [ "{{baseUrl}}" ],
+          "path" : [ "keys" ]
+        }
+      },
+      "status" : "Key already exists — either IN_PROGRESS, COMPLETED (replay cached\nresponse), or FINGERPRINT_MISMATCH. The caller should NOT proceed.\n",
+      "code" : 200,
+      "_postman_previewlanguage" : "json",
+      "header" : [ ],
+      "body" : ""
+    }, {
+      "name" : "400 Invalid request payload or missing required fields.",
+      "originalRequest" : {
+        "method" : "POST",
+        "description" : "Reserve a new idempotency key before processing a request\n\nResponses:\n- 201: Key reserved — caller may proceed with the operation.\n- 200: Key already exists — either IN_PROGRESS, COMPLETED (replay cached\nresponse), or FINGERPRINT_MISMATCH. The caller should NOT proceed.\n\n- 400: Invalid request payload or missing required fields.\n- 409: Fingerprint mismatch — key reused with different payload.\n- 500: Internal server error.",
+        "header" : [ {
+          "key" : "Content-Type",
+          "value" : "application/json",
+          "type" : "text"
+        } ],
+        "body" : {
+          "mode" : "raw",
+          "raw" : "{\"idempotencyKey\":\"order-ORD-12345-pay-2026-11-02\",\"requestFingerprint\":\"sha256:3a7bd3e2360a3d29eea436fcfb7e44c735d117c42d1c1835420b6b9942dd4f1b\",\"operation\":\"payment.charge\",\"ttlSeconds\":86400,\"clientId\":\"checkout-service\",\"correlationId\":\"9c8f1a3b-6d7e-4a12-8f5e-123456789abc\",\"metadata\":{\"orderId\":\"ORD-12345\",\"customerId\":\"CUST-789\"}}",
+          "options" : {
+            "raw" : {
+              "language" : "json"
+            }
+          }
+        },
+        "url" : {
+          "raw" : "{{baseUrl}}/keys",
+          "host" : [ "{{baseUrl}}" ],
+          "path" : [ "keys" ]
+        }
+      },
+      "status" : "Invalid request payload or missing required fields.",
+      "code" : 400,
+      "_postman_previewlanguage" : "json",
+      "header" : [ {
+        "key" : "Content-Type",
+        "value" : "application/json"
+      } ],
+      "body" : "{\"status\":409,\"errorCode\":\"FINGERPRINT_MISMATCH\",\"message\":\"Key order-ORD-12345-pay-2026-11-02 was already used with a different request payload.\",\"timestamp\":\"2026-01-01T00:00:00Z\",\"path\":\"/v30/keys\",\"serviceTransactionId\":\"523f52b2-64a5-465e-b245-3efbe78f70ae\"}"
+    }, {
+      "name" : "409 Fingerprint mismatch — key reused with different payload.",
+      "originalRequest" : {
+        "method" : "POST",
+        "description" : "Reserve a new idempotency key before processing a request\n\nResponses:\n- 201: Key reserved — caller may proceed with the operation.\n- 200: Key already exists — either IN_PROGRESS, COMPLETED (replay cached\nresponse), or FINGERPRINT_MISMATCH. The caller should NOT proceed.\n\n- 400: Invalid request payload or missing required fields.\n- 409: Fingerprint mismatch — key reused with different payload.\n- 500: Internal server error.",
+        "header" : [ {
+          "key" : "Content-Type",
+          "value" : "application/json",
+          "type" : "text"
+        } ],
+        "body" : {
+          "mode" : "raw",
+          "raw" : "{\"idempotencyKey\":\"order-ORD-12345-pay-2026-11-02\",\"requestFingerprint\":\"sha256:3a7bd3e2360a3d29eea436fcfb7e44c735d117c42d1c1835420b6b9942dd4f1b\",\"operation\":\"payment.charge\",\"ttlSeconds\":86400,\"clientId\":\"checkout-service\",\"correlationId\":\"9c8f1a3b-6d7e-4a12-8f5e-123456789abc\",\"metadata\":{\"orderId\":\"ORD-12345\",\"customerId\":\"CUST-789\"}}",
+          "options" : {
+            "raw" : {
+              "language" : "json"
+            }
+          }
+        },
+        "url" : {
+          "raw" : "{{baseUrl}}/keys",
+          "host" : [ "{{baseUrl}}" ],
+          "path" : [ "keys" ]
+        }
+      },
+      "status" : "Fingerprint mismatch — key reused with different payload.",
+      "code" : 409,
+      "_postman_previewlanguage" : "json",
+      "header" : [ {
+        "key" : "Content-Type",
+        "value" : "application/json"
+      } ],
+      "body" : "{\"status\":409,\"errorCode\":\"FINGERPRINT_MISMATCH\",\"message\":\"Key order-ORD-12345-pay-2026-11-02 was already used with a different request payload.\",\"timestamp\":\"2026-01-01T00:00:00Z\",\"path\":\"/v30/keys\",\"serviceTransactionId\":\"523f52b2-64a5-465e-b245-3efbe78f70ae\"}"
+    }, {
+      "name" : "500 Internal server error.",
+      "originalRequest" : {
+        "method" : "POST",
+        "description" : "Reserve a new idempotency key before processing a request\n\nResponses:\n- 201: Key reserved — caller may proceed with the operation.\n- 200: Key already exists — either IN_PROGRESS, COMPLETED (replay cached\nresponse), or FINGERPRINT_MISMATCH. The caller should NOT proceed.\n\n- 400: Invalid request payload or missing required fields.\n- 409: Fingerprint mismatch — key reused with different payload.\n- 500: Internal server error.",
+        "header" : [ {
+          "key" : "Content-Type",
+          "value" : "application/json",
+          "type" : "text"
+        } ],
+        "body" : {
+          "mode" : "raw",
+          "raw" : "{\"idempotencyKey\":\"order-ORD-12345-pay-2026-11-02\",\"requestFingerprint\":\"sha256:3a7bd3e2360a3d29eea436fcfb7e44c735d117c42d1c1835420b6b9942dd4f1b\",\"operation\":\"payment.charge\",\"ttlSeconds\":86400,\"clientId\":\"checkout-service\",\"correlationId\":\"9c8f1a3b-6d7e-4a12-8f5e-123456789abc\",\"metadata\":{\"orderId\":\"ORD-12345\",\"customerId\":\"CUST-789\"}}",
+          "options" : {
+            "raw" : {
+              "language" : "json"
+            }
+          }
+        },
+        "url" : {
+          "raw" : "{{baseUrl}}/keys",
+          "host" : [ "{{baseUrl}}" ],
+          "path" : [ "keys" ]
+        }
+      },
+      "status" : "Internal server error.",
+      "code" : 500,
+      "_postman_previewlanguage" : "json",
+      "header" : [ {
+        "key" : "Content-Type",
+        "value" : "application/json"
+      } ],
+      "body" : "{\"status\":409,\"errorCode\":\"FINGERPRINT_MISMATCH\",\"message\":\"Key order-ORD-12345-pay-2026-11-02 was already used with a different request payload.\",\"timestamp\":\"2026-01-01T00:00:00Z\",\"path\":\"/v30/keys\",\"serviceTransactionId\":\"523f52b2-64a5-465e-b245-3efbe78f70ae\"}"
+    } ]
+  }, {
+    "name" : "Look up the state of an idempotency key",
+    "request" : {
+      "method" : "GET",
+      "description" : "Look up the state of an idempotency key\n\nResponses:\n- 200: Key state retrieved successfully.\n- 404: Key not found or already expired.\n- 500: Internal server error.",
+      "header" : [ ],
+      "url" : {
+        "raw" : "{{baseUrl}}/keys/:idempotencyKey?clientId={{clientId}}&includeCachedResponse={{includeCachedResponse}}",
+        "host" : [ "{{baseUrl}}" ],
+        "path" : [ "keys", ":idempotencyKey" ],
+        "query" : [ {
+          "key" : "clientId",
+          "value" : "sample-id",
+          "disabled" : true,
+          "description" : "Caller identity for tenant isolation."
+        }, {
+          "key" : "includeCachedResponse",
+          "value" : "true",
+          "disabled" : true,
+          "description" : "Whether to include the cached response body (if completed)."
+        } ],
+        "variable" : [ {
+          "key" : "idempotencyKey",
+          "value" : "sample",
+          "description" : "The idempotency key to look up."
+        } ]
+      }
+    },
+    "response" : [ {
+      "name" : "200 Key state retrieved successfully.",
+      "originalRequest" : {
+        "method" : "GET",
+        "description" : "Look up the state of an idempotency key\n\nResponses:\n- 200: Key state retrieved successfully.\n- 404: Key not found or already expired.\n- 500: Internal server error.",
+        "header" : [ ],
+        "url" : {
+          "raw" : "{{baseUrl}}/keys/:idempotencyKey?clientId={{clientId}}&includeCachedResponse={{includeCachedResponse}}",
+          "host" : [ "{{baseUrl}}" ],
+          "path" : [ "keys", ":idempotencyKey" ],
+          "query" : [ {
+            "key" : "clientId",
+            "value" : "sample-id",
+            "disabled" : true,
+            "description" : "Caller identity for tenant isolation."
+          }, {
+            "key" : "includeCachedResponse",
+            "value" : "true",
+            "disabled" : true,
+            "description" : "Whether to include the cached response body (if completed)."
+          } ],
+          "variable" : [ {
+            "key" : "idempotencyKey",
+            "value" : "sample",
+            "description" : "The idempotency key to look up."
+          } ]
+        }
+      },
+      "status" : "Key state retrieved successfully.",
+      "code" : 200,
+      "_postman_previewlanguage" : "json",
+      "header" : [ ],
+      "body" : ""
+    }, {
+      "name" : "404 Key not found or already expired.",
+      "originalRequest" : {
+        "method" : "GET",
+        "description" : "Look up the state of an idempotency key\n\nResponses:\n- 200: Key state retrieved successfully.\n- 404: Key not found or already expired.\n- 500: Internal server error.",
+        "header" : [ ],
+        "url" : {
+          "raw" : "{{baseUrl}}/keys/:idempotencyKey?clientId={{clientId}}&includeCachedResponse={{includeCachedResponse}}",
+          "host" : [ "{{baseUrl}}" ],
+          "path" : [ "keys", ":idempotencyKey" ],
+          "query" : [ {
+            "key" : "clientId",
+            "value" : "sample-id",
+            "disabled" : true,
+            "description" : "Caller identity for tenant isolation."
+          }, {
+            "key" : "includeCachedResponse",
+            "value" : "true",
+            "disabled" : true,
+            "description" : "Whether to include the cached response body (if completed)."
+          } ],
+          "variable" : [ {
+            "key" : "idempotencyKey",
+            "value" : "sample",
+            "description" : "The idempotency key to look up."
+          } ]
+        }
+      },
+      "status" : "Key not found or already expired.",
+      "code" : 404,
+      "_postman_previewlanguage" : "json",
+      "header" : [ {
+        "key" : "Content-Type",
+        "value" : "application/json"
+      } ],
+      "body" : "{\"status\":409,\"errorCode\":\"FINGERPRINT_MISMATCH\",\"message\":\"Key order-ORD-12345-pay-2026-11-02 was already used with a different request payload.\",\"timestamp\":\"2026-01-01T00:00:00Z\",\"path\":\"/v30/keys\",\"serviceTransactionId\":\"523f52b2-64a5-465e-b245-3efbe78f70ae\"}"
+    }, {
+      "name" : "500 Internal server error.",
+      "originalRequest" : {
+        "method" : "GET",
+        "description" : "Look up the state of an idempotency key\n\nResponses:\n- 200: Key state retrieved successfully.\n- 404: Key not found or already expired.\n- 500: Internal server error.",
+        "header" : [ ],
+        "url" : {
+          "raw" : "{{baseUrl}}/keys/:idempotencyKey?clientId={{clientId}}&includeCachedResponse={{includeCachedResponse}}",
+          "host" : [ "{{baseUrl}}" ],
+          "path" : [ "keys", ":idempotencyKey" ],
+          "query" : [ {
+            "key" : "clientId",
+            "value" : "sample-id",
+            "disabled" : true,
+            "description" : "Caller identity for tenant isolation."
+          }, {
+            "key" : "includeCachedResponse",
+            "value" : "true",
+            "disabled" : true,
+            "description" : "Whether to include the cached response body (if completed)."
+          } ],
+          "variable" : [ {
+            "key" : "idempotencyKey",
+            "value" : "sample",
+            "description" : "The idempotency key to look up."
+          } ]
+        }
+      },
+      "status" : "Internal server error.",
+      "code" : 500,
+      "_postman_previewlanguage" : "json",
+      "header" : [ {
+        "key" : "Content-Type",
+        "value" : "application/json"
+      } ],
+      "body" : "{\"status\":409,\"errorCode\":\"FINGERPRINT_MISMATCH\",\"message\":\"Key order-ORD-12345-pay-2026-11-02 was already used with a different request payload.\",\"timestamp\":\"2026-01-01T00:00:00Z\",\"path\":\"/v30/keys\",\"serviceTransactionId\":\"523f52b2-64a5-465e-b245-3efbe78f70ae\"}"
+    } ]
+  }, {
+    "name" : "Release an idempotency key without caching a response",
+    "request" : {
+      "method" : "DELETE",
+      "description" : "Release an idempotency key without caching a response\n\nResponses:\n- 204: Key released successfully.\n- 400: Invalid request payload or missing required fields.\n- 404: Key not found or already expired.\n- 409: Key already completed — cannot be released.\n- 500: Internal server error.",
+      "header" : [ ],
+      "url" : {
+        "raw" : "{{baseUrl}}/keys/:idempotencyKey?reason={{reason}}&clientId={{clientId}}",
+        "host" : [ "{{baseUrl}}" ],
+        "path" : [ "keys", ":idempotencyKey" ],
+        "query" : [ {
+          "key" : "reason",
+          "value" : "sample",
+          "disabled" : false,
+          "description" : "Reason for release (audit trail)."
+        }, {
+          "key" : "clientId",
+          "value" : "sample-id",
+          "disabled" : true,
+          "description" : "Caller identity for tenant isolation."
+        } ],
+        "variable" : [ {
+          "key" : "idempotencyKey",
+          "value" : "sample",
+          "description" : "The idempotency key to release."
+        } ]
+      }
+    },
+    "response" : [ {
+      "name" : "204 Key released successfully.",
+      "originalRequest" : {
+        "method" : "DELETE",
+        "description" : "Release an idempotency key without caching a response\n\nResponses:\n- 204: Key released successfully.\n- 400: Invalid request payload or missing required fields.\n- 404: Key not found or already expired.\n- 409: Key already completed — cannot be released.\n- 500: Internal server error.",
+        "header" : [ ],
+        "url" : {
+          "raw" : "{{baseUrl}}/keys/:idempotencyKey?reason={{reason}}&clientId={{clientId}}",
+          "host" : [ "{{baseUrl}}" ],
+          "path" : [ "keys", ":idempotencyKey" ],
+          "query" : [ {
+            "key" : "reason",
+            "value" : "sample",
+            "disabled" : false,
+            "description" : "Reason for release (audit trail)."
+          }, {
+            "key" : "clientId",
+            "value" : "sample-id",
+            "disabled" : true,
+            "description" : "Caller identity for tenant isolation."
+          } ],
+          "variable" : [ {
+            "key" : "idempotencyKey",
+            "value" : "sample",
+            "description" : "The idempotency key to release."
+          } ]
+        }
+      },
+      "status" : "Key released successfully.",
+      "code" : 204,
+      "_postman_previewlanguage" : "json",
+      "header" : [ ],
+      "body" : ""
+    }, {
+      "name" : "400 Invalid request payload or missing required fields.",
+      "originalRequest" : {
+        "method" : "DELETE",
+        "description" : "Release an idempotency key without caching a response\n\nResponses:\n- 204: Key released successfully.\n- 400: Invalid request payload or missing required fields.\n- 404: Key not found or already expired.\n- 409: Key already completed — cannot be released.\n- 500: Internal server error.",
+        "header" : [ ],
+        "url" : {
+          "raw" : "{{baseUrl}}/keys/:idempotencyKey?reason={{reason}}&clientId={{clientId}}",
+          "host" : [ "{{baseUrl}}" ],
+          "path" : [ "keys", ":idempotencyKey" ],
+          "query" : [ {
+            "key" : "reason",
+            "value" : "sample",
+            "disabled" : false,
+            "description" : "Reason for release (audit trail)."
+          }, {
+            "key" : "clientId",
+            "value" : "sample-id",
+            "disabled" : true,
+            "description" : "Caller identity for tenant isolation."
+          } ],
+          "variable" : [ {
+            "key" : "idempotencyKey",
+            "value" : "sample",
+            "description" : "The idempotency key to release."
+          } ]
+        }
+      },
+      "status" : "Invalid request payload or missing required fields.",
+      "code" : 400,
+      "_postman_previewlanguage" : "json",
+      "header" : [ {
+        "key" : "Content-Type",
+        "value" : "application/json"
+      } ],
+      "body" : "{\"status\":409,\"errorCode\":\"FINGERPRINT_MISMATCH\",\"message\":\"Key order-ORD-12345-pay-2026-11-02 was already used with a different request payload.\",\"timestamp\":\"2026-01-01T00:00:00Z\",\"path\":\"/v30/keys\",\"serviceTransactionId\":\"523f52b2-64a5-465e-b245-3efbe78f70ae\"}"
+    }, {
+      "name" : "404 Key not found or already expired.",
+      "originalRequest" : {
+        "method" : "DELETE",
+        "description" : "Release an idempotency key without caching a response\n\nResponses:\n- 204: Key released successfully.\n- 400: Invalid request payload or missing required fields.\n- 404: Key not found or already expired.\n- 409: Key already completed — cannot be released.\n- 500: Internal server error.",
+        "header" : [ ],
+        "url" : {
+          "raw" : "{{baseUrl}}/keys/:idempotencyKey?reason={{reason}}&clientId={{clientId}}",
+          "host" : [ "{{baseUrl}}" ],
+          "path" : [ "keys", ":idempotencyKey" ],
+          "query" : [ {
+            "key" : "reason",
+            "value" : "sample",
+            "disabled" : false,
+            "description" : "Reason for release (audit trail)."
+          }, {
+            "key" : "clientId",
+            "value" : "sample-id",
+            "disabled" : true,
+            "description" : "Caller identity for tenant isolation."
+          } ],
+          "variable" : [ {
+            "key" : "idempotencyKey",
+            "value" : "sample",
+            "description" : "The idempotency key to release."
+          } ]
+        }
+      },
+      "status" : "Key not found or already expired.",
+      "code" : 404,
+      "_postman_previewlanguage" : "json",
+      "header" : [ {
+        "key" : "Content-Type",
+        "value" : "application/json"
+      } ],
+      "body" : "{\"status\":409,\"errorCode\":\"FINGERPRINT_MISMATCH\",\"message\":\"Key order-ORD-12345-pay-2026-11-02 was already used with a different request payload.\",\"timestamp\":\"2026-01-01T00:00:00Z\",\"path\":\"/v30/keys\",\"serviceTransactionId\":\"523f52b2-64a5-465e-b245-3efbe78f70ae\"}"
+    }, {
+      "name" : "409 Key already completed — cannot be released.",
+      "originalRequest" : {
+        "method" : "DELETE",
+        "description" : "Release an idempotency key without caching a response\n\nResponses:\n- 204: Key released successfully.\n- 400: Invalid request payload or missing required fields.\n- 404: Key not found or already expired.\n- 409: Key already completed — cannot be released.\n- 500: Internal server error.",
+        "header" : [ ],
+        "url" : {
+          "raw" : "{{baseUrl}}/keys/:idempotencyKey?reason={{reason}}&clientId={{clientId}}",
+          "host" : [ "{{baseUrl}}" ],
+          "path" : [ "keys", ":idempotencyKey" ],
+          "query" : [ {
+            "key" : "reason",
+            "value" : "sample",
+            "disabled" : false,
+            "description" : "Reason for release (audit trail)."
+          }, {
+            "key" : "clientId",
+            "value" : "sample-id",
+            "disabled" : true,
+            "description" : "Caller identity for tenant isolation."
+          } ],
+          "variable" : [ {
+            "key" : "idempotencyKey",
+            "value" : "sample",
+            "description" : "The idempotency key to release."
+          } ]
+        }
+      },
+      "status" : "Key already completed — cannot be released.",
+      "code" : 409,
+      "_postman_previewlanguage" : "json",
+      "header" : [ {
+        "key" : "Content-Type",
+        "value" : "application/json"
+      } ],
+      "body" : "{\"status\":409,\"errorCode\":\"FINGERPRINT_MISMATCH\",\"message\":\"Key order-ORD-12345-pay-2026-11-02 was already used with a different request payload.\",\"timestamp\":\"2026-01-01T00:00:00Z\",\"path\":\"/v30/keys\",\"serviceTransactionId\":\"523f52b2-64a5-465e-b245-3efbe78f70ae\"}"
+    }, {
+      "name" : "500 Internal server error.",
+      "originalRequest" : {
+        "method" : "DELETE",
+        "description" : "Release an idempotency key without caching a response\n\nResponses:\n- 204: Key released successfully.\n- 400: Invalid request payload or missing required fields.\n- 404: Key not found or already expired.\n- 409: Key already completed — cannot be released.\n- 500: Internal server error.",
+        "header" : [ ],
+        "url" : {
+          "raw" : "{{baseUrl}}/keys/:idempotencyKey?reason={{reason}}&clientId={{clientId}}",
+          "host" : [ "{{baseUrl}}" ],
+          "path" : [ "keys", ":idempotencyKey" ],
+          "query" : [ {
+            "key" : "reason",
+            "value" : "sample",
+            "disabled" : false,
+            "description" : "Reason for release (audit trail)."
+          }, {
+            "key" : "clientId",
+            "value" : "sample-id",
+            "disabled" : true,
+            "description" : "Caller identity for tenant isolation."
+          } ],
+          "variable" : [ {
+            "key" : "idempotencyKey",
+            "value" : "sample",
+            "description" : "The idempotency key to release."
+          } ]
+        }
+      },
+      "status" : "Internal server error.",
+      "code" : 500,
+      "_postman_previewlanguage" : "json",
+      "header" : [ {
+        "key" : "Content-Type",
+        "value" : "application/json"
+      } ],
+      "body" : "{\"status\":409,\"errorCode\":\"FINGERPRINT_MISMATCH\",\"message\":\"Key order-ORD-12345-pay-2026-11-02 was already used with a different request payload.\",\"timestamp\":\"2026-01-01T00:00:00Z\",\"path\":\"/v30/keys\",\"serviceTransactionId\":\"523f52b2-64a5-465e-b245-3efbe78f70ae\"}"
+    } ]
+  }, {
+    "name" : "Mark a key as completed and cache the response",
+    "request" : {
+      "method" : "POST",
+      "description" : "Mark a key as completed and cache the response\n\nResponses:\n- 200: Key completed and response cached.\n- 400: Invalid request payload or missing required fields.\n- 404: Key not found or already expired.\n- 409: Key already completed or fingerprint mismatch.\n- 500: Internal server error.",
+      "header" : [ {
+        "key" : "Content-Type",
+        "value" : "application/json",
+        "type" : "text"
+      } ],
+      "body" : {
+        "mode" : "raw",
+        "raw" : "{\"outcome\":\"SUCCESS\",\"responseStatusCode\":201,\"responseHeaders\":{\"Location\":\"/v30/payments/PAY-99999\",\"Content-Type\":\"application/json\"},\"responseBody\":{\"paymentId\":\"PAY-99999\",\"status\":\"SUCCESS\",\"amount\":149.99},\"requestFingerprint\":\"sha256:3a7bd3e2360a3d29eea436fcfb7e44c735d117c42d1c1835420b6b9942dd4f1b\",\"executionDurationMs\":245,\"metadata\":{\"processedBy\":\"payment-processor-pod-7f8b9\"}}",
+        "options" : {
+          "raw" : {
+            "language" : "json"
+          }
+        }
+      },
+      "url" : {
+        "raw" : "{{baseUrl}}/keys/:idempotencyKey/complete",
+        "host" : [ "{{baseUrl}}" ],
+        "path" : [ "keys", ":idempotencyKey", "complete" ],
+        "variable" : [ {
+          "key" : "idempotencyKey",
+          "value" : "sample",
+          "description" : "The idempotency key to complete."
+        } ]
+      }
+    },
+    "response" : [ {
+      "name" : "200 Key completed and response cached.",
+      "originalRequest" : {
+        "method" : "POST",
+        "description" : "Mark a key as completed and cache the response\n\nResponses:\n- 200: Key completed and response cached.\n- 400: Invalid request payload or missing required fields.\n- 404: Key not found or already expired.\n- 409: Key already completed or fingerprint mismatch.\n- 500: Internal server error.",
+        "header" : [ {
+          "key" : "Content-Type",
+          "value" : "application/json",
+          "type" : "text"
+        } ],
+        "body" : {
+          "mode" : "raw",
+          "raw" : "{\"outcome\":\"SUCCESS\",\"responseStatusCode\":201,\"responseHeaders\":{\"Location\":\"/v30/payments/PAY-99999\",\"Content-Type\":\"application/json\"},\"responseBody\":{\"paymentId\":\"PAY-99999\",\"status\":\"SUCCESS\",\"amount\":149.99},\"requestFingerprint\":\"sha256:3a7bd3e2360a3d29eea436fcfb7e44c735d117c42d1c1835420b6b9942dd4f1b\",\"executionDurationMs\":245,\"metadata\":{\"processedBy\":\"payment-processor-pod-7f8b9\"}}",
+          "options" : {
+            "raw" : {
+              "language" : "json"
+            }
+          }
+        },
+        "url" : {
+          "raw" : "{{baseUrl}}/keys/:idempotencyKey/complete",
+          "host" : [ "{{baseUrl}}" ],
+          "path" : [ "keys", ":idempotencyKey", "complete" ],
+          "variable" : [ {
+            "key" : "idempotencyKey",
+            "value" : "sample",
+            "description" : "The idempotency key to complete."
+          } ]
+        }
+      },
+      "status" : "Key completed and response cached.",
+      "code" : 200,
+      "_postman_previewlanguage" : "json",
+      "header" : [ ],
+      "body" : ""
+    }, {
+      "name" : "400 Invalid request payload or missing required fields.",
+      "originalRequest" : {
+        "method" : "POST",
+        "description" : "Mark a key as completed and cache the response\n\nResponses:\n- 200: Key completed and response cached.\n- 400: Invalid request payload or missing required fields.\n- 404: Key not found or already expired.\n- 409: Key already completed or fingerprint mismatch.\n- 500: Internal server error.",
+        "header" : [ {
+          "key" : "Content-Type",
+          "value" : "application/json",
+          "type" : "text"
+        } ],
+        "body" : {
+          "mode" : "raw",
+          "raw" : "{\"outcome\":\"SUCCESS\",\"responseStatusCode\":201,\"responseHeaders\":{\"Location\":\"/v30/payments/PAY-99999\",\"Content-Type\":\"application/json\"},\"responseBody\":{\"paymentId\":\"PAY-99999\",\"status\":\"SUCCESS\",\"amount\":149.99},\"requestFingerprint\":\"sha256:3a7bd3e2360a3d29eea436fcfb7e44c735d117c42d1c1835420b6b9942dd4f1b\",\"executionDurationMs\":245,\"metadata\":{\"processedBy\":\"payment-processor-pod-7f8b9\"}}",
+          "options" : {
+            "raw" : {
+              "language" : "json"
+            }
+          }
+        },
+        "url" : {
+          "raw" : "{{baseUrl}}/keys/:idempotencyKey/complete",
+          "host" : [ "{{baseUrl}}" ],
+          "path" : [ "keys", ":idempotencyKey", "complete" ],
+          "variable" : [ {
+            "key" : "idempotencyKey",
+            "value" : "sample",
+            "description" : "The idempotency key to complete."
+          } ]
+        }
+      },
+      "status" : "Invalid request payload or missing required fields.",
+      "code" : 400,
+      "_postman_previewlanguage" : "json",
+      "header" : [ {
+        "key" : "Content-Type",
+        "value" : "application/json"
+      } ],
+      "body" : "{\"status\":409,\"errorCode\":\"FINGERPRINT_MISMATCH\",\"message\":\"Key order-ORD-12345-pay-2026-11-02 was already used with a different request payload.\",\"timestamp\":\"2026-01-01T00:00:00Z\",\"path\":\"/v30/keys\",\"serviceTransactionId\":\"523f52b2-64a5-465e-b245-3efbe78f70ae\"}"
+    }, {
+      "name" : "404 Key not found or already expired.",
+      "originalRequest" : {
+        "method" : "POST",
+        "description" : "Mark a key as completed and cache the response\n\nResponses:\n- 200: Key completed and response cached.\n- 400: Invalid request payload or missing required fields.\n- 404: Key not found or already expired.\n- 409: Key already completed or fingerprint mismatch.\n- 500: Internal server error.",
+        "header" : [ {
+          "key" : "Content-Type",
+          "value" : "application/json",
+          "type" : "text"
+        } ],
+        "body" : {
+          "mode" : "raw",
+          "raw" : "{\"outcome\":\"SUCCESS\",\"responseStatusCode\":201,\"responseHeaders\":{\"Location\":\"/v30/payments/PAY-99999\",\"Content-Type\":\"application/json\"},\"responseBody\":{\"paymentId\":\"PAY-99999\",\"status\":\"SUCCESS\",\"amount\":149.99},\"requestFingerprint\":\"sha256:3a7bd3e2360a3d29eea436fcfb7e44c735d117c42d1c1835420b6b9942dd4f1b\",\"executionDurationMs\":245,\"metadata\":{\"processedBy\":\"payment-processor-pod-7f8b9\"}}",
+          "options" : {
+            "raw" : {
+              "language" : "json"
+            }
+          }
+        },
+        "url" : {
+          "raw" : "{{baseUrl}}/keys/:idempotencyKey/complete",
+          "host" : [ "{{baseUrl}}" ],
+          "path" : [ "keys", ":idempotencyKey", "complete" ],
+          "variable" : [ {
+            "key" : "idempotencyKey",
+            "value" : "sample",
+            "description" : "The idempotency key to complete."
+          } ]
+        }
+      },
+      "status" : "Key not found or already expired.",
+      "code" : 404,
+      "_postman_previewlanguage" : "json",
+      "header" : [ {
+        "key" : "Content-Type",
+        "value" : "application/json"
+      } ],
+      "body" : "{\"status\":409,\"errorCode\":\"FINGERPRINT_MISMATCH\",\"message\":\"Key order-ORD-12345-pay-2026-11-02 was already used with a different request payload.\",\"timestamp\":\"2026-01-01T00:00:00Z\",\"path\":\"/v30/keys\",\"serviceTransactionId\":\"523f52b2-64a5-465e-b245-3efbe78f70ae\"}"
+    }, {
+      "name" : "409 Key already completed or fingerprint mismatch.",
+      "originalRequest" : {
+        "method" : "POST",
+        "description" : "Mark a key as completed and cache the response\n\nResponses:\n- 200: Key completed and response cached.\n- 400: Invalid request payload or missing required fields.\n- 404: Key not found or already expired.\n- 409: Key already completed or fingerprint mismatch.\n- 500: Internal server error.",
+        "header" : [ {
+          "key" : "Content-Type",
+          "value" : "application/json",
+          "type" : "text"
+        } ],
+        "body" : {
+          "mode" : "raw",
+          "raw" : "{\"outcome\":\"SUCCESS\",\"responseStatusCode\":201,\"responseHeaders\":{\"Location\":\"/v30/payments/PAY-99999\",\"Content-Type\":\"application/json\"},\"responseBody\":{\"paymentId\":\"PAY-99999\",\"status\":\"SUCCESS\",\"amount\":149.99},\"requestFingerprint\":\"sha256:3a7bd3e2360a3d29eea436fcfb7e44c735d117c42d1c1835420b6b9942dd4f1b\",\"executionDurationMs\":245,\"metadata\":{\"processedBy\":\"payment-processor-pod-7f8b9\"}}",
+          "options" : {
+            "raw" : {
+              "language" : "json"
+            }
+          }
+        },
+        "url" : {
+          "raw" : "{{baseUrl}}/keys/:idempotencyKey/complete",
+          "host" : [ "{{baseUrl}}" ],
+          "path" : [ "keys", ":idempotencyKey", "complete" ],
+          "variable" : [ {
+            "key" : "idempotencyKey",
+            "value" : "sample",
+            "description" : "The idempotency key to complete."
+          } ]
+        }
+      },
+      "status" : "Key already completed or fingerprint mismatch.",
+      "code" : 409,
+      "_postman_previewlanguage" : "json",
+      "header" : [ {
+        "key" : "Content-Type",
+        "value" : "application/json"
+      } ],
+      "body" : "{\"status\":409,\"errorCode\":\"FINGERPRINT_MISMATCH\",\"message\":\"Key order-ORD-12345-pay-2026-11-02 was already used with a different request payload.\",\"timestamp\":\"2026-01-01T00:00:00Z\",\"path\":\"/v30/keys\",\"serviceTransactionId\":\"523f52b2-64a5-465e-b245-3efbe78f70ae\"}"
+    }, {
+      "name" : "500 Internal server error.",
+      "originalRequest" : {
+        "method" : "POST",
+        "description" : "Mark a key as completed and cache the response\n\nResponses:\n- 200: Key completed and response cached.\n- 400: Invalid request payload or missing required fields.\n- 404: Key not found or already expired.\n- 409: Key already completed or fingerprint mismatch.\n- 500: Internal server error.",
+        "header" : [ {
+          "key" : "Content-Type",
+          "value" : "application/json",
+          "type" : "text"
+        } ],
+        "body" : {
+          "mode" : "raw",
+          "raw" : "{\"outcome\":\"SUCCESS\",\"responseStatusCode\":201,\"responseHeaders\":{\"Location\":\"/v30/payments/PAY-99999\",\"Content-Type\":\"application/json\"},\"responseBody\":{\"paymentId\":\"PAY-99999\",\"status\":\"SUCCESS\",\"amount\":149.99},\"requestFingerprint\":\"sha256:3a7bd3e2360a3d29eea436fcfb7e44c735d117c42d1c1835420b6b9942dd4f1b\",\"executionDurationMs\":245,\"metadata\":{\"processedBy\":\"payment-processor-pod-7f8b9\"}}",
+          "options" : {
+            "raw" : {
+              "language" : "json"
+            }
+          }
+        },
+        "url" : {
+          "raw" : "{{baseUrl}}/keys/:idempotencyKey/complete",
+          "host" : [ "{{baseUrl}}" ],
+          "path" : [ "keys", ":idempotencyKey", "complete" ],
+          "variable" : [ {
+            "key" : "idempotencyKey",
+            "value" : "sample",
+            "description" : "The idempotency key to complete."
+          } ]
+        }
+      },
+      "status" : "Internal server error.",
+      "code" : 500,
+      "_postman_previewlanguage" : "json",
+      "header" : [ {
+        "key" : "Content-Type",
+        "value" : "application/json"
+      } ],
+      "body" : "{\"status\":409,\"errorCode\":\"FINGERPRINT_MISMATCH\",\"message\":\"Key order-ORD-12345-pay-2026-11-02 was already used with a different request payload.\",\"timestamp\":\"2026-01-01T00:00:00Z\",\"path\":\"/v30/keys\",\"serviceTransactionId\":\"523f52b2-64a5-465e-b245-3efbe78f70ae\"}"
+    } ]
+  } ]
+}
